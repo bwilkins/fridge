@@ -10,10 +10,8 @@ from sqlalchemy import Column, Integer,\
 
 from datetime import datetime
 
-engine = create_engine('sqlite:////home/hugh/src/fridge_2.0/db.sqlite', echo=True)
 
-Base = declarative_base(bind=engine)
-Session = sessionmaker(bind=engine)
+Base = declarative_base()
 
 
 class Item(Base):
@@ -173,4 +171,10 @@ class UserDiscount(Base):
         self.discount = discount
 
 
-Base.metadata.create_all(bind=engine)
+def init(dbpath, debug=False):
+    global Base
+    engine = create_engine(dbpath, echo=debug)
+    Session = sessionmaker(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    return Base, Session
