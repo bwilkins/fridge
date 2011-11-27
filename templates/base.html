@@ -2,16 +2,21 @@
 <html>
 <head>
 <title>!fridge:{% block title %}{% endblock %}</title>
+<link href='http://fonts.googleapis.com/css?family=Unkempt|Actor|Francois+One' rel='stylesheet' type='text/css'>
+<link href='/static/styles.css' rel="stylesheet" type="text/css">
 {% block htmlhead %}{% endblock %}
 </head>
 <body>
-<div id="header">
-<h1>{% block page_title %}{% endblock %}</h1>
-<div id="page_content">
-{% block content %}{% endblock %}
-</div>
-<div id="footer">
-Copyright (c) Hugh Davenport, Brett Wilkins 2011
-</div>
+    <div id=container>
+        <div id="header">
+            <h1 class="heading"><span class="fridgetext">!fridge</span><span class="pagetitletext">{% block page_title %}{% endblock %}</span></h1>
+        </div>
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
+        <div id="footer">
+        Copyright (c) Hugh Davenport, Brett Wilkins 2011
+        </div>
+    </div>
 </body>
 

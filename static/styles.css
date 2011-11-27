@@ -1,0 +1,31 @@
+#container {
+    margin: 0 auto;
+    width: 960px;
+    background-color: lightBlue;
+}
+
+#header {
+    padding:20px;
+    border-bottom: solid 2px;
+}
+
+#content {
+    clear: left;
+    padding: 20px;
+}
+
+#header h1.heading {
+    margin: 0;
+}
+
+h1.heading span.fridgetext {
+    font-family: 'Unkempt', cursive;
+}
+
+h1.heading span.pagetitletext {
+    font-family: 'Francois One', sans-serif;
+}
+
+#footer {
+    background-color: #ececec;
+}
