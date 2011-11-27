@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+<title>{% block title %}{% endblock %} - !fridge</title>
+{% block htmlhead %}{% endblock %}
+</head>
+<body>
+<div id="header">
+<h1>{% block page_title %}{% endblock %}</h1>
+<div id="page_content">
+{% block content %}{% endblock %}
+</div>
+<div id="footer">
+Copyright (c) Hugh Davenport, Brett Wilkins 2011
+</div>
+</body>
+
