@@ -7,7 +7,7 @@ if not DIRNAME:
 sys.path.append(DIRNAME)
 
 import bottle
-from bottle import route, run, get, post, request, response, redirect
+from bottle import route, run, get, post, request, response, redirect, static_file
 from bottle import jinja2_view as view
 
 bottle.TEMPLATE_PATH.append(DIRNAME + '/templates/')
@@ -94,9 +94,9 @@ def do_login(user):
 
 
 #Route handlers
-@route('/static/:filename#js.*|images.*|style.*|favicon.ico#')
+@route('/static/:filename')
 def send_static(filename):
-    bottle.send_file(filename, root=DIRNAME+'/static')
+    return static_file(filename, root=DIRNAME+'/static/')
 
 @route('/')
 def home():
@@ -125,9 +125,10 @@ def process_login():
 @route('/logout')
 def logout():
     s = request.environ.get('beaker.session')
-    del s['is_logged_in']
-    del s['logged_in']
-    s.save()
+    if 'is_logged_in' in s:
+        del s['is_logged_in']
+        del s['logged_in_id']
+        s.save()
 
     redirect('/')
 
@@ -178,6 +179,17 @@ def userdetails(username=None):
 @require_login(require_admin=True)
 def userlist():
     return ''
+
+@get('/item/add')
+@require_login(require_admin=True)
+@view('additem.html')
+def additem_view():
+    return {}
+
+@post('/item/add')
+@require_login(require_admin=True)
+def additem():
+    return {}
 
 @route('/item/:itemname')
 def itemdetails(itemname):
