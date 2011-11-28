@@ -9,6 +9,14 @@
     border-bottom: solid 2px;
 }
 
+.fridge-logo {
+    display: inline-block;
+    height: 70px;
+    width: 55px;
+    margin-bottom: -25px;
+    padding-right: 5px;
+}
+
 #content {
     clear: left;
     padding: 20px;
@@ -16,6 +24,7 @@
 
 #header h1.heading {
     margin: 0;
+    display: inline-block;
 }
 
 h1.heading span.fridgetext {

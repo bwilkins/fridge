@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>!fridge:{% block title %}{% endblock %}</title>
+<link href="/static/favicon.ico" rel="shortcut icon" type="inage/x-icon">
 <link href='http://fonts.googleapis.com/css?family=Unkempt|Actor|Francois+One' rel='stylesheet' type='text/css'>
 <link href='/static/styles.css' rel="stylesheet" type="text/css">
 {% block htmlhead %}{% endblock %}
@@ -9,7 +10,7 @@
 <body>
     <div id=container>
         <div id="header">
-            <h1 class="heading"><span class="fridgetext">!fridge</span><span class="pagetitletext">{% block page_title %}{% endblock %}</span></h1>
+            <img class="fridge-logo" src="/static/Fridge_logo.png" /><h1 class="heading"><span class="fridgetext">!fridge</span><span class="pagetitletext">{% block page_title %}{% endblock %}</span></h1>
         </div>
         <div id="content">
             {% block content %}{% endblock %}
