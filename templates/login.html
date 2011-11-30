@@ -2,7 +2,7 @@
 {% block title %}Login{% endblock %}
 {% block page_title %}:Login{% endblock %}
 {% block content %}
-<div id="login_form">
+<div class="styleform">
     <form action="/login" method="POST">
         <input type="hidden" name="csrf" value="{{csrf_nonce}}" />
         <label for="username">Username: </label>
@@ -10,6 +10,7 @@
         <label for="password">Password: </label>
         <input name="password" id="password" type="password" />
         <input type="submit" value="Login" />
+        <br />
     </form>
 </div>
 {% endblock %}

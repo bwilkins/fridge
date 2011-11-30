@@ -2,26 +2,23 @@
 {% block title %}Register{% endblock %}
 {% block page_title %}:Register{% endblock %}
 {% block content %}
-<div id="login_form">
+<div class="styleform">
     <form action="/register" method="POST">
         <input type="hidden" name="csrf" value="{{csrf_nonce}}" />
         <label for="username">Username: </label>
         <input name="username" id="username" type="text" />
-        <br />
         <label for="firstname">First Name: </label>
         <input name="firstname" id="firstname" type="text" />
         <label for="lastname">Last Name: </label>
         <input name="lastname" id="lastname" type="text" />
-        <br />
         <label for="email">Email: </label>
         <input name="email" id="email" type="text" />
-        <br />
         <label for="password">Password: </label>
         <input name="password" id="password" type="password" />
-        <br />
         <label for="confirmpassword">Confirm Password: </label>
         <input name="confirmpassword" id="confirmpassword" type="password" />
         <input type="submit" value="Register" />
+        <br />
     </form>
 </div>
 {% endblock %}

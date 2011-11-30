@@ -28,11 +28,36 @@
 }
 
 h1.heading span.fridgetext {
-    font-family: 'Unkempt', cursive;
+    font-family: 'Kelly Slab', sans-serif;
 }
 
 h1.heading span.pagetitletext {
     font-family: 'Francois One', sans-serif;
+}
+
+div.styleform {
+    width: 400px;
+}
+
+div.styleform label, div.styleform input {
+    display: block;
+    width: 150px;
+    float: left;
+    margin-bottom: 10px;
+}
+
+div.styleform label {
+    text-align: right;
+    padding-right: 20px;
+}
+
+div.styleform br {
+    clear: left;
+}
+
+div.styleform input[type=submit] {
+    margin-left: 170px;
+    width: 154px;
 }
 
 #footer {
