@@ -99,8 +99,9 @@ def send_static(filename):
     return static_file(filename, root=DIRNAME+'/static/')
 
 @route('/')
+@view('home.html')
 def home():
-    return 'You are home!'
+    return {}
 
 @get('/login')
 @view('login.html')
