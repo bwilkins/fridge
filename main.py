@@ -112,7 +112,7 @@ def login():
 @not_logged_in
 def process_login():
     s = request.environ.get('beaker.session')
-    user = session.query(database.User).filter_by(username=request.POST['username']).first()
+    user = session.query(database.User).filter_by(email=request.POST['email']).first()
     try:
         password_check = user is not None and bcrypt.hashpw(request.POST['password'], user.password) == user.password
         if check_csrf() and password_check:
@@ -147,7 +147,7 @@ def already_registered():
 @post('/register')
 def register():
     post = request.POST
-    user = session.query(database.User).filter_by(username=post['username']).first()
+    user = session.query(database.User).filter_by(email=post['email']).first()
     if user is not None:
         redirect('/already_registered')
 
@@ -156,12 +156,11 @@ def register():
 
     password = bcrypt.hashpw(post['password'], bcrypt.gensalt(14))
 
-    user = database.User(post['username'], password,
-                         post['email'], post['firstname'], post['lastname'])
+    user = database.User(post['email'], password)
     session.add(user)
     session.commit()
 
-    user = session.query(database.User).filter_by(username=post['username']).first()
+    user = session.query(database.User).filter_by(email=post['email']).first()
 
 
     do_login(user)
@@ -170,10 +169,10 @@ def register():
 
 
 @route('/user')
-@route('/user/:username')
+@route('/user/:email')
 @require_login()
-def userdetails(username=None):
-    return ''
+def userdetails(email=None):
+    return email
 
 @route('/users')
 @require_login(require_admin=True)
