@@ -51,6 +51,7 @@ class ItemCategory(Base):
     name = Column(String, unique=True, nullable=False)
 
     items = relationship("Item", order_by="Item.id", backref="category")
+    attributegroups = relationship("AttributeGroup", backref="category")
 
     def __init__(self, name):
         self.name = name
@@ -67,52 +68,47 @@ class ItemImage(Base):
         self.item_id = item_id
         self.path = path
 
-class Vote(Base):
-    __tablename__ = 'vote'
 
-    user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
-    item_id = Column(Integer, ForeignKey('item.id'), primary_key=True)
-    vote = Column(Boolean, nullable=False)
+class AttributeGroup(Base):
+    __tablename__ = 'attributegroup'
 
-    def __init__(self, user_id, item_id, vote):
-        self.user_id, self.item_id, self.vote = user_id, item_id, vote
+    id = Column(Integer, Sequence('attributegroup_id_seq'), primary_key=True)
+    code = Column(String, nullable=False, unique=True)
+    description = Column(String, nullable=False)
+    cat_id = Column(Integer, ForeignKey('itemcategory.id'), nullable=False)
+    attrtype = Column(String, nullable=False)
+    required = Column(Boolean, nullable=False, default=False)
+
+    attributes = relationship('Attribute', backref='group')
+
+    def __init__(self, code, description, cat_id, attrtype, required=False):
+        self.code = code
+        self.description = description
+        self.cat_id = cat_id
+        self.attrtype = attrtype
+        self.required = required
 
 
-TransactionTypes = ["transfer", "purchase", "topup", "restock"]
+class Attribute(Base):
+    __tablename__ = 'attribute'
 
+    id = Column(Integer, Sequence('attribute_id_seq'), primary_key=True)
+    code = Column(String, nullable=False, unique=True)
+    description = Column(String, nullable=False)
+    group_id = Column(Integer, ForeignKey('attributegroup.id'), nullable=False)
 
-class Ledger(Base):
-    __tablename__ = 'ledger'
-
-    id = Column(Integer, Sequence('ledger_id_seq'), primary_key=True)
-    transtype = Column(Integer, default=TransactionTypes.index("purchase"), nullable=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    reference = Column(String, nullable=False, default="")
-    quantity = Column(Float, default=0.0, nullable=False)
-    verified = Column(Boolean, default=True, nullable=False)
-    timestamp = Column(DateTime, nullable=False, default=datetime.now())
-
-    def __init__(self, user_id, reference, quantity, transtype=TransactionTypes.index("purchase"), verified=True):
-        self.user_id = user_id
-        self.reference = reference
-        self.quantity = quantity
-        self.transtype = transtype
-        self.verified = verified
-        self.timestamp = datetime.now()
-
-    def __repr__(self):
-        return "<Ledger(%s: %s %s %d %s)>" % (self.timestamp.isoformat(' '), user.username, TransactionTypes[self.transtype], self.quantity, self.reference)
+    def __init__(self, code, description, group_id):
+        self.code = code
+        self.description = description
+        self.group_id = group_id
 
 
 class User(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-    username = Column(String, nullable=False, unique=True, index=True)
-    fname = Column(String, nullable=False)
-    lname = Column(String, nullable=False)
-    password = Column(String, nullable=False)
     email = Column(String, nullable=False)
+    password = Column(String, nullable=False)
     isadmin = Column(Boolean, nullable=False, default=False)
     enabled = Column(Boolean, nullable=False, default=True)
 
@@ -122,13 +118,11 @@ class User(Base):
     ledgers = relationship("Ledger", backref="user")
     votes = relationship("Vote", backref="user")
 
-    def __init__(self, username, password, email, fname, lname, **kwargs):
-        self.username = username
-        self.password = password
+    def __init__(self, email, password, **kwargs):
         self.email = email
-        self.fname, self.lname = fname, lname
+        self.password = password
         for k,v in kwargs:
-            if k in ('isadmin', 'enabled', 'image'):
+            if k in ('isadmin', 'enabled'):
                 setattr(self, k, v)
 
     def __repr__(self):
@@ -169,6 +163,43 @@ class UserDiscount(Base):
     def __init__(self, user_id, discount):
         self.user_id = user_id
         self.discount = discount
+
+
+class Vote(Base):
+    __tablename__ = 'vote'
+
+    user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
+    item_id = Column(Integer, ForeignKey('item.id'), primary_key=True)
+    vote = Column(Boolean, nullable=False)
+
+    def __init__(self, user_id, item_id, vote):
+        self.user_id, self.item_id, self.vote = user_id, item_id, vote
+
+
+TransactionTypes = ["transfer", "purchase", "topup", "restock"]
+
+
+class Ledger(Base):
+    __tablename__ = 'ledger'
+
+    id = Column(Integer, Sequence('ledger_id_seq'), primary_key=True)
+    transtype = Column(Integer, default=TransactionTypes.index("purchase"), nullable=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    reference = Column(String, nullable=False, default="")
+    quantity = Column(Float, default=0.0, nullable=False)
+    verified = Column(Boolean, default=True, nullable=False)
+    timestamp = Column(DateTime, nullable=False, default=datetime.now())
+
+    def __init__(self, user_id, reference, quantity, transtype=TransactionTypes.index("purchase"), verified=True):
+        self.user_id = user_id
+        self.reference = reference
+        self.quantity = quantity
+        self.transtype = transtype
+        self.verified = verified
+        self.timestamp = datetime.now()
+
+    def __repr__(self):
+        return "<Ledger(%s: %s %s %d %s)>" % (self.timestamp.isoformat(' '), user.username, TransactionTypes[self.transtype], self.quantity, self.reference)
 
 
 def init(dbpath, debug=False):
