@@ -39,7 +39,8 @@ div.styleform {
     width: 400px;
 }
 
-div.styleform label, div.styleform input {
+div.styleform label, div.styleform input,
+div.styleform select {
     display: block;
     width: 150px;
     float: left;
@@ -55,9 +56,17 @@ div.styleform br {
     clear: left;
 }
 
+div.styleform select {
+    width: 154px;
+}
+
 div.styleform input[type=submit] {
     margin-left: 170px;
     width: 154px;
+}
+
+div.styleform input[type=checkbox] {
+    margin-left: -70px;
 }
 
 #footer {

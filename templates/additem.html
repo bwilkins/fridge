@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Add an Item{% endblock %}
+{% block page_title %}:Item:Add{% endblock %}
+{% block content %}
+<div class="styleform">
+    <form action="" method="POST">
+        <label for="code">Code: </label>
+        <input id="code" name="code" type="text" />
+        <label for="name">Name: </label>
+        <input id="name" name="name" type="text" />
+        <label for="description">Description: </label>
+        <input id="description" name="description" type="text" />
+        {% if is_admin %}
+        <label for="cost">Cost: </label>
+        <input id="cost" name="cost" type="text" />
+        {% endif %}
+        <label for="category">Category: </label>
+        <select id="category" name="category">
+            {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+        </select>
+        {% if is_admin %}
+        <label for="wishlist">Wishlist?: </label>
+        <input type="checkbox" id="wishlist" name="wishlist" />
+        {% endif %}
+        <input type="submit" value="Add" />
+        <br />
+    </form>
+</div>
+{% endblock %}

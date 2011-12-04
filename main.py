@@ -90,6 +90,7 @@ def do_login(user):
     s = request.environ.get('beaker.session')
     s['is_logged_in'] = datetime.now()
     s['logged_in_id'] = user.id
+    s['is_admin'] = user.isadmin
     s.save()
 
 
@@ -180,30 +181,82 @@ def userdetails(email=None):
 def userlist():
     return ''
 
-@get('/item/add')
+@get('/item/:code/edit')
+@view('edititem.html')
 @require_login(require_admin=True)
+def edititem_view(code):
+    item = session.query(database.Item).filter_by(code=code).first()
+    if not item:
+        redirect('/')
+    categories = session.query(database.ItemCategory).all()
+    return {"item": item, "categories": categories, "is_admin": is_admin()}
+
+@post('/item/:code/edit')
+@require_login(require_admin=True)
+def edititem(code):
+    post = request.POST
+    item = session.query(database.Item).filter_by(id=post['id']).first()
+    if not item:
+        redirect('/')
+    for key in post:
+        print key, post[key]
+        if hasattr(item, key) and getattr(item,key) != post[key]:
+            setattr(item, key, post[key])
+
+    session.add(item)
+    session.commit()
+
+    redirect('/item/%s' % item.code)
+
+@get('/item/add')
 @view('additem.html')
+@require_login()
 def additem_view():
-    return {}
+    categories = session.query(database.ItemCategory).all()
+    return {"is_admin": is_admin(), "categories": categories}
 
 @post('/item/add')
-@require_login(require_admin=True)
+@require_login()
 def additem():
-    return {}
+    post = request.POST
+    wishlist = not is_admin() or post.get('wishlist', False)
+    cost = post['cost'] if is_admin() else 0;
+    item = database.Item(post['code'], post['name'], cost, post['category'], description=post['description'], wishlist=wishlist)
+    session.add(item)
+    session.commit()
+    redirect('/item/%s' % post['code'])
 
-@route('/item/:itemname')
-def itemdetails(itemname):
-    return ''
+@route('/item/:code')
+@view('itemdetails.html')
+def itemdetails(code):
+    item = session.query(database.Item).filter_by(code=code).first()
+    return {"item": item}
 
 @route('/items/wishlist')
 def item_wishlist():
     return ''
 
+@get('/items/category/add')
+@view('additemcategory.html')
+@require_login(require_admin=True)
+def additemcategory_view():
+    return {}
+
+@post('/items/category/add')
+@view('additemcategory.html')
+@require_login(require_admin=True)
+def additemcategory():
+    post = request.POST
+    category = database.ItemCategory(post['name'])
+    session.add(category)
+    session.commit()
+    return redirect('/')
 
 @route('/items')
 @route('/items/category/:categoryname')
 def item_list(categoryname=None):
     return ''
+
 
 if __name__ == '__main__':
     run(app=app, host='0.0.0.0', port=8080)
