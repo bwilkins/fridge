@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer,\
                        String, Boolean,\
                        Sequence, Text,\
                        ForeignKey, Float,\
-                       DateTime
+                       DateTime, Table
 
 from datetime import datetime
 
@@ -33,12 +33,12 @@ class Item(Base):
     votes = relationship("Vote", backref="item")
 
     def __init__(self, code, name, cost, category, **kwargs):
-        self.code, self.name, self.cost, self.category = code, name, cost, category
-        for k,v in kwargs:
+        self.code, self.name, self.cost, self.cat_id = code, name, cost, category
+        for k in kwargs:
             if k in ('description', 'image',
                      'markup', 'stock_count',
                      'stock_low_mark', 'wishlist' ,'enabled'):
-                setattr(self, k, v)
+                setattr(self, k, kwargs[k])
 
     def __repr__(self):
         return "<Item(%s, code=%s, stock=%d)>" % (self.name, self.code, self.stock_count)
@@ -115,15 +115,15 @@ class User(Base):
     image = relationship("UserImage", backref="user", uselist=False)
     account = relationship("Account", backref="user", uselist=False)
     discount = relationship("UserDiscount", backref="user", uselist=False)
-    ledgers = relationship("Ledger", backref="user")
+    ledgers = relationship("Ledger", backref="user", primaryjoin="User.id == Ledger.user_id")
     votes = relationship("Vote", backref="user")
 
     def __init__(self, email, password, **kwargs):
         self.email = email
         self.password = password
-        for k,v in kwargs:
+        for k in kwargs:
             if k in ('isadmin', 'enabled'):
-                setattr(self, k, v)
+                setattr(self, k, kwargs[k])
 
     def __repr__(self):
         return "<User('%s')>" % self.username
@@ -179,27 +179,42 @@ class Vote(Base):
 TransactionTypes = ["transfer", "purchase", "topup", "restock"]
 
 
+ledgerattributes= Table('ledgerattributes', Base.metadata,
+    Column('ledger_id', Integer, ForeignKey('ledger.id'), nullable=False),
+    Column('attribute_id', Integer, ForeignKey('attribute.id'), nullable=False)
+)
+
+
 class Ledger(Base):
     __tablename__ = 'ledger'
 
     id = Column(Integer, Sequence('ledger_id_seq'), primary_key=True)
-    transtype = Column(Integer, default=TransactionTypes.index("purchase"), nullable=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    reference = Column(String, nullable=False, default="")
+    transtype = Column(Integer, default=TransactionTypes.index("purchase"))
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    product_id = Column(Integer, ForeignKey('item.id'))
+    to_user_id = Column(Integer, ForeignKey('user.id'))
     quantity = Column(Float, default=0.0, nullable=False)
     verified = Column(Boolean, default=True, nullable=False)
     timestamp = Column(DateTime, nullable=False, default=datetime.now())
 
-    def __init__(self, user_id, reference, quantity, transtype=TransactionTypes.index("purchase"), verified=True):
+    attributes = relationship("Attribute", secondary=ledgerattributes, backref="ledgers")
+
+    def __init__(self, user_id, quantity, transtype=TransactionTypes.index("purchase"), verified=True, **kwargs):
         self.user_id = user_id
-        self.reference = reference
         self.quantity = quantity
         self.transtype = transtype
         self.verified = verified
         self.timestamp = datetime.now()
 
+        for k in kwargs:
+            if k in ('product_id', 'to_user_id'):
+                setattr(self, k, kwargs[k])
+
+        if not (hasattr(self, 'product_id') or hasattr(self, 'to_user_id')):
+            raise Exception("Ledger must have either product_id or to_user_id!")
+
     def __repr__(self):
-        return "<Ledger(%s: %s %s %d %s)>" % (self.timestamp.isoformat(' '), user.username, TransactionTypes[self.transtype], self.quantity, self.reference)
+        return "<Ledger(%s: %s %s %d)>" % (self.timestamp.isoformat(' '), user.username, TransactionTypes[self.transtype], self.quantity)
 
 
 def init(dbpath, debug=False):
